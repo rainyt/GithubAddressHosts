@@ -6,8 +6,14 @@ import python.lib.urllib.Parse;
 
 class Main {
 	static function main() {
+		pushIPAddress("github.com");
+		pushIPAddress("github.global.ssl.fastly.net");
+	}
+
+	public static function pushIPAddress(url:String):Void {
+		trace("追加映射IP的域名:" + url);
 		// 需要获取的网页内容
-		var content = Requests.get("http://ipaddress.com/website/github.com");
+		var content = Requests.get("http://ipaddress.com/website/" + url);
 		if (content.status_code != 200) {
 			trace("网络异常：", content.status_code);
 			return;
@@ -47,7 +53,7 @@ class Main {
 		}
 		// 开始遍历更新
 		for (index => str in h) {
-			if (str.indexOf("github.com") != -1) {
+			if (str.indexOf(url) != -1) {
 				// 存在github.com，更新IP
 				var ips = str.split(" ");
 				// 判断当前IP是否可用
@@ -68,8 +74,8 @@ class Main {
 		}
 		hosts = h.join("\n");
 		if (isHasGithub == false) {
-			// 如果不存在github.com，则追加ip
-			hosts += "\n" + ip + " github.com";
+			// 如果不存在该域名，则追加ip
+			hosts += "\n" + ip + " " + url;
 		}
 		trace("更新hosts:\n" + hosts);
 		File.saveContent("/etc/hosts", hosts);
