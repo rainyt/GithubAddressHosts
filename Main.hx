@@ -21,6 +21,10 @@ class Main {
 			return;
 		}
 		trace("获得到IP：", ip);
+		// todo：WINDOW暂不支持更改Hosts
+		if (Sys.systemName() == "Windows") {
+			return;
+		}
 		// 判断是否能够ping通结果
 		// 更换GITHUB的Hosts
 		var hosts = File.getContent("/etc/hosts");
