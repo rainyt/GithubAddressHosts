@@ -8,11 +8,18 @@ class Main {
 	static function main() {
 		// 需要获取的网页内容
 		var content = Requests.get("http://ipaddress.com/website/github.com");
-		File.saveContent("content.txt", content.text);
+		if (content.status_code != 200) {
+			trace("网络异常：", content.status_code);
+			return;
+		}
 		// 分析IP地址
 		var startText = '<th>IP Address</th><td><ul class="comma-separated"><li>';
 		var ip = content.text.substr(content.text.indexOf(startText) + startText.length);
 		ip = ip.substr(0, ip.indexOf("<"));
+		if (ip.split(".").length < 4) {
+			trace("ip格式异常：" + ip);
+			return;
+		}
 		trace("获得到IP：", ip);
 		// 判断是否能够ping通结果
 		// 更换GITHUB的Hosts
@@ -34,7 +41,7 @@ class Main {
 				return;
 			}
 		}
-        // 开始遍历更新
+		// 开始遍历更新
 		for (index => str in h) {
 			if (str.indexOf("github.com") != -1) {
 				// 存在github.com，更新IP
@@ -62,7 +69,6 @@ class Main {
 		}
 		trace("更新hosts:\n" + hosts);
 		File.saveContent("/etc/hosts", hosts);
-		trace("请求结果", content.status_code);
 	}
 }
 

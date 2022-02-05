@@ -75,14 +75,19 @@ class Main:
     @staticmethod
     def main():
         content = Requests.get("http://ipaddress.com/website/github.com")
-        sys_io_File.saveContent("content.txt",content.text)
+        if (content.status_code != 200):
+            haxe_Log.trace("网络异常：",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 12, 'className': "Main", 'methodName': "main", 'customParams': [content.status_code]}))
+            return
         startText = "<th>IP Address</th><td><ul class=\"comma-separated\"><li>"
         _this = content.text
         startIndex = None
         ip = HxString.substr(content.text,(((_this.find(startText) if ((startIndex is None)) else HxString.indexOfImpl(_this,startText,startIndex))) + len(startText)),None)
         startIndex = None
         ip = HxString.substr(ip,0,(ip.find("<") if ((startIndex is None)) else HxString.indexOfImpl(ip,"<",startIndex)))
-        haxe_Log.trace("获得到IP：",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 16, 'className': "Main", 'methodName': "main", 'customParams': [ip]}))
+        if (len(ip.split(".")) < 4):
+            haxe_Log.trace(("ip格式异常：" + ("null" if ip is None else ip)),_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 20, 'className': "Main", 'methodName': "main"}))
+            return
+        haxe_Log.trace("获得到IP：",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 23, 'className': "Main", 'methodName': "main", 'customParams': [ip]}))
         hosts = sys_io_File.getContent("/etc/hosts")
         h = hosts.split("\n")
         isHasGithub = False
@@ -92,14 +97,14 @@ class Main:
             _g = (_g + 1)
             startIndex = None
             if (((s.find(ip) if ((startIndex is None)) else HxString.indexOfImpl(s,ip,startIndex))) != -1):
-                haxe_Log.trace((("当前IP[" + ("null" if ip is None else ip)) + "]已经存在hosts中"),_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 25, 'className': "Main", 'methodName': "main"}))
+                haxe_Log.trace((("当前IP[" + ("null" if ip is None else ip)) + "]已经存在hosts中"),_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 32, 'className': "Main", 'methodName': "main"}))
                 proess = sys_io_Process(("ping -c 3 " + ("null" if ip is None else ip)))
                 ms = proess.stdout.readAll().toString()
                 startIndex1 = None
                 if (((ms.find("0.0%") if ((startIndex1 is None)) else HxString.indexOfImpl(ms,"0.0%",startIndex1))) == -1):
-                    haxe_Log.trace("[异常]存在丢包现象",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 30, 'className': "Main", 'methodName': "main"}))
+                    haxe_Log.trace("[异常]存在丢包现象",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 37, 'className': "Main", 'methodName': "main"}))
                 else:
-                    haxe_Log.trace("[检查]无丢包现象，可正常使用",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 32, 'className': "Main", 'methodName': "main"}))
+                    haxe_Log.trace("[检查]无丢包现象，可正常使用",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 39, 'className': "Main", 'methodName': "main"}))
                 return
         _g1_current = 0
         _g1_array = h
@@ -112,7 +117,7 @@ class Main:
             startIndex = None
             if (((_hx_str.find("github.com") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"github.com",startIndex))) != -1):
                 ips = _hx_str.split(" ")
-                haxe_Log.trace("检查当前IP可用性：",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 42, 'className': "Main", 'methodName': "main", 'customParams': [(ips[0] if 0 < len(ips) else None)]}))
+                haxe_Log.trace("检查当前IP可用性：",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 50, 'className': "Main", 'methodName': "main", 'customParams': [(ips[0] if 0 < len(ips) else None)]}))
                 proess = sys_io_Process(("ping -c 3 " + HxOverrides.stringOrNull((ips[0] if 0 < len(ips) else None))))
                 ms = proess.stdout.readAll().toString()
                 startIndex1 = None
@@ -122,13 +127,12 @@ class Main:
                     _hx_str = " ".join([python_Boot.toString1(x1,'') for x1 in ips])
                     python_internal_ArrayImpl._set(h, index, _hx_str)
                 else:
-                    haxe_Log.trace((("IP[" + HxOverrides.stringOrNull((ips[0] if 0 < len(ips) else None))) + "]丢包率通过"),_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 53, 'className': "Main", 'methodName': "main"}))
+                    haxe_Log.trace((("IP[" + HxOverrides.stringOrNull((ips[0] if 0 < len(ips) else None))) + "]丢包率通过"),_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 61, 'className': "Main", 'methodName': "main"}))
         hosts = "\n".join([python_Boot.toString1(x1,'') for x1 in h])
         if (isHasGithub == False):
             hosts = (("null" if hosts is None else hosts) + HxOverrides.stringOrNull(((("\n" + ("null" if ip is None else ip)) + " github.com"))))
-        haxe_Log.trace(("更新hosts:\n" + ("null" if hosts is None else hosts)),_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 62, 'className': "Main", 'methodName': "main"}))
+        haxe_Log.trace(("更新hosts:\n" + ("null" if hosts is None else hosts)),_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 70, 'className': "Main", 'methodName': "main"}))
         sys_io_File.saveContent("/etc/hosts",hosts)
-        haxe_Log.trace("请求结果",_hx_AnonObject({'fileName': "Main.hx", 'lineNumber': 64, 'className': "Main", 'methodName': "main", 'customParams': [content.status_code]}))
 
 
 class Reflect:
